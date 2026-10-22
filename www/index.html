@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#121214" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
+  <meta name="description" content="Analyse the frequency, wavelength and pitch of any sound, and split music into vocal and instrumental parts.">
+  <title>Frequency Analyzer</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h3l2-6 3 12 3-15 3 18 2-9h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Frequency Analyzer</span>
+    </div>
+    <button class="icon-btn" id="settings-btn" aria-label="Settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="17" r="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <!-- ============================== LIVE ============================== -->
+    <section id="view-live" class="view active" aria-labelledby="tab-live">
+      <div class="card hero">
+        <div class="hero-label" id="live-status">Tap <b>Start listening</b> and sing, hum or say a vowel.</div>
+        <div class="hero-freq"><span id="live-freq">—</span><small>Hz</small></div>
+        <div class="hero-note">
+          <span class="note-pill" id="live-note">—</span>
+          <span class="cents" id="live-cents"></span>
+        </div>
+        <div class="tuner" aria-hidden="true">
+          <div class="tuner-scale"><span>−50¢</span><span>0</span><span>+50¢</span></div>
+          <div class="tuner-track"><div class="tuner-zone"></div><div class="tuner-needle" id="live-needle"></div></div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-label">Wavelength</div><div class="stat-value" id="live-wavelength">—</div></div>
+        <div class="stat"><div class="stat-label">Period</div><div class="stat-value" id="live-period">—</div></div>
+        <div class="stat"><div class="stat-label">Clarity</div><div class="stat-value" id="live-clarity">—</div></div>
+        <div class="stat"><div class="stat-label">Level</div><div class="stat-value" id="live-level">—</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Spectrum</h2><span class="hint" id="live-peak">Peak —</span></div>
+        <canvas class="chart" id="live-spectrum" height="180" role="img" aria-label="Live frequency spectrum"></canvas>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Pitch over time</h2><span class="hint">last 10 s</span></div>
+        <canvas class="chart" id="live-history" height="170" role="img" aria-label="Pitch history"></canvas>
+        <div class="mini-stats">
+          <span>Low <b id="live-min">—</b></span>
+          <span>Avg <b id="live-avg">—</b></span>
+          <span>High <b id="live-max">—</b></span>
+          <button class="link-btn" id="live-reset">Reset</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Vowel &amp; formants</h2><span class="hint">F1 ↓ vs F2 ← (Hz)</span></div>
+        <div class="vowel-row">
+          <div class="vowel-big"><span id="live-vowel-ipa">—</span><small id="live-vowel-label">No vowel yet</small></div>
+          <dl class="formants">
+            <div><dt>F1</dt><dd id="live-f1">—</dd></div>
+            <div><dt>F2</dt><dd id="live-f2">—</dd></div>
+            <div><dt>F3</dt><dd id="live-f3">—</dd></div>
+          </dl>
+        </div>
+        <p class="hint vowel-tip">Hold a steady vowel — the dot shows where your mouth shape sits among the vowels.</p>
+        <canvas class="chart" id="live-vowel-chart" height="200" role="img" aria-label="Vowel chart: F2 against F1"></canvas>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Harmonics</h2><span class="hint">relative strength</span></div>
+        <div class="harmonics" id="live-harmonics"></div>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn primary" id="live-toggle">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+          <span>Start listening</span>
+        </button>
+        <button class="btn" id="live-hold" disabled>Hold</button>
+        <button class="btn" id="live-record" disabled title="Record a clip and run the full analysis">● Rec</button>
+      </div>
+    </section>
+
+    <!-- ============================== FILE ============================== -->
+    <section id="view-file" class="view" aria-labelledby="tab-file">
+      <label class="dropzone" id="dropzone">
+        <input type="file" id="file-input" accept="audio/*,video/mp4,.mp3,.wav,.m4a,.aac,.ogg,.oga,.opus,.flac,.webm" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="16" r="3" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+        <strong>Choose an audio file</strong>
+        <span>A song, a voice note or a single vowel — MP3, WAV, M4A, OGG, FLAC</span>
+      </label>
+
+      <div class="card progress-card" id="file-progress" hidden>
+        <div class="card-head"><h2 id="progress-title">Analysing…</h2><span class="hint" id="progress-pct">0%</span></div>
+        <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+        <p class="hint" id="progress-stage">Decoding audio</p>
+      </div>
+
+      <div class="card error" id="file-error" hidden></div>
+
+      <div id="file-results" hidden>
+        <div class="card">
+          <div class="card-head"><h2 id="res-name">File</h2><span class="hint" id="res-meta"></span></div>
+          <div class="stats-grid compact">
+            <div class="stat"><div class="stat-label">Duration</div><div class="stat-value" id="res-duration">—</div></div>
+            <div class="stat"><div class="stat-label">Key</div><div class="stat-value" id="res-key">—</div></div>
+            <div class="stat"><div class="stat-label">Tempo</div><div class="stat-value" id="res-tempo">—</div></div>
+            <div class="stat"><div class="stat-label">Loudness</div><div class="stat-value" id="res-loudness">—</div></div>
+          </div>
+          <p class="note" id="res-truncated" hidden>Only the first 8 minutes were analysed.</p>
+        </div>
+
+        <div class="card player">
+          <div class="segmented" role="tablist" aria-label="Choose what to play">
+            <button role="tab" class="seg active" data-stem="mix"><i class="swatch s1"></i>Full mix</button>
+            <button role="tab" class="seg" data-stem="vocal"><i class="swatch s2"></i>Vocals</button>
+            <button role="tab" class="seg" data-stem="inst"><i class="swatch s3"></i>Instrumental</button>
+          </div>
+          <canvas class="chart" id="res-wave" height="70" role="img" aria-label="Waveform; tap to seek"></canvas>
+          <div class="player-row">
+            <button class="btn round" id="play-btn" aria-label="Play">
+              <svg viewBox="0 0 24 24" aria-hidden="true" id="play-icon"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+            </button>
+            <span class="time" id="play-time">0:00 / 0:00</span>
+            <button class="btn small" id="download-btn">Save WAV</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2>Spectrogram</h2><span class="hint" id="spec-readout">Tap to read a point</span></div>
+          <div class="segmented small" id="spec-tabs">
+            <button class="seg active" data-spec="mix">Mix</button>
+            <button class="seg" data-spec="vocal">Vocals</button>
+            <button class="seg" data-spec="inst">Instrumental</button>
+          </div>
+          <canvas class="chart" id="res-spectrogram" height="220" role="img" aria-label="Spectrogram: time across, frequency up"></canvas>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2>Overall sound</h2><span class="hint" id="sound-at"></span></div>
+          <div class="stats-grid">
+            <div class="stat"><div class="stat-label">Fundamental</div><div class="stat-value" id="sound-f0">—</div></div>
+            <div class="stat"><div class="stat-label">Pitch (note)</div><div class="stat-value" id="sound-note">—</div></div>
+            <div class="stat"><div class="stat-label">Wavelength</div><div class="stat-value" id="sound-wavelength">—</div></div>
+            <div class="stat"><div class="stat-label">Period</div><div class="stat-value" id="sound-period">—</div></div>
+            <div class="stat"><div class="stat-label">Loudest frequency</div><div class="stat-value" id="sound-dominant">—</div></div>
+            <div class="stat"><div class="stat-label">Its wavelength</div><div class="stat-value" id="sound-dominant-wl">—</div></div>
+          </div>
+          <div class="sub-head">Vowel</div>
+          <p class="body" id="sound-vowel">—</p>
+          <div class="sub-head">Harmonics</div>
+          <div class="harmonics" id="sound-harmonics"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2><i class="swatch s2"></i>Vocals</h2><span class="hint" id="voc-detected"></span></div>
+          <div class="stats-grid">
+            <div class="stat"><div class="stat-label">Typical pitch</div><div class="stat-value" id="voc-median">—</div></div>
+            <div class="stat"><div class="stat-label">Range</div><div class="stat-value" id="voc-range">—</div></div>
+            <div class="stat"><div class="stat-label">Voice type</div><div class="stat-value" id="voc-type">—</div></div>
+            <div class="stat"><div class="stat-label">Wavelength</div><div class="stat-value" id="voc-wavelength">—</div></div>
+          </div>
+          <div class="sub-head">Melody (pitch contour)</div>
+          <canvas class="chart" id="voc-contour" height="190" role="img" aria-label="Vocal pitch over time"></canvas>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2><i class="swatch s3"></i>Instrumental</h2></div>
+          <div class="sub-head">Harmonic vs percussive</div>
+          <div class="split-bar" id="inst-hp"><div class="split-a"></div><div class="split-b"></div></div>
+          <div class="split-legend"><span id="inst-h">Pitched —</span><span id="inst-p">Percussive —</span></div>
+          <ul class="profile" id="inst-profile"></ul>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2>Energy by frequency band</h2></div>
+          <div class="legend"><span><i class="swatch s2"></i>Vocals</span><span><i class="swatch s3"></i>Instrumental</span></div>
+          <div class="bands" id="res-bands"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2>Average spectrum</h2><span class="hint" id="avg-readout"></span></div>
+          <div class="legend"><span><i class="swatch s1"></i>Mix</span><span><i class="swatch s2"></i>Vocals</span><span><i class="swatch s3"></i>Instrumental</span></div>
+          <canvas class="chart" id="res-avg" height="200" role="img" aria-label="Average spectrum of mix, vocals and instrumental"></canvas>
+        </div>
+
+        <p class="note">
+          Vocals are separated on-device by finding sound that is centre-panned, pitched and in the
+          voice range. It works well on most studio mixes; centre-panned lead instruments can leak
+          into the vocal part, and mono recordings separate less cleanly.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar" role="tablist">
+    <button role="tab" id="tab-live" class="tab active" data-view="live" aria-selected="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      <span>Live</span>
+    </button>
+    <button role="tab" id="tab-file" class="tab" data-view="file" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="16" r="3" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      <span>Music &amp; files</span>
+    </button>
+  </nav>
+
+  <dialog id="settings">
+    <form method="dialog">
+      <h2>Settings</h2>
+      <label>Reference pitch A4 (Hz)
+        <input type="number" id="set-a4" min="400" max="480" step="0.1" value="440">
+      </label>
+      <label>Air temperature (°C)
+        <input type="number" id="set-temp" min="-30" max="50" step="1" value="20">
+      </label>
+      <p class="hint" id="set-speed">Speed of sound: 343.4 m/s</p>
+      <p class="hint">Wavelength = speed of sound ÷ frequency. All processing happens on your device; no audio is uploaded.</p>
+      <div class="dialog-actions"><button class="btn primary" value="ok">Done</button></div>
+    </form>
+  </dialog>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "frequency-analyzer",
+  "version": "1.0.0",
+  "description": "Mobile sound analyser: live pitch, frequency and wavelength, plus vocal / instrumental analysis of music files.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "npx --yes http-server www -p 8080 -c-1",
+    "test": "node --test test/*.test.js"
+  },
+  "license": "MIT"
+}
