@@ -50,6 +50,19 @@ runs in seconds on a phone. Centre-panned lead instruments (a solo sax, a lead s
 into the vocal part, and mono recordings separate less cleanly. Studio-grade stem separation
 needs a neural network such as Demucs, which is far too heavy to run in a phone browser.
 
+## Website
+
+The same code is also a standalone website that works in any modern desktop or mobile browser.
+On wide screens it switches to a two-column desktop layout, and you can drag and drop audio
+files onto it.
+
+Every push to the main branch (or `ccr-180482ca-j7jtdw`) runs the tests and then publishes
+`www/` to **GitHub Pages** through `.github/workflows/pages.yml`, at
+**https://medwak.github.io/Frequency_analyzer/**.
+
+The first time, a repository admin may need to open **Settings → Pages** and set
+**Source: GitHub Actions**, then re-run the "Deploy website" workflow.
+
 ## Running it
 
 It's a Progressive Web App: plain HTML/CSS/JavaScript with no build step and no dependencies.
@@ -59,8 +72,8 @@ npm start          # serves www/ at http://localhost:8080
 npm test           # DSP unit tests on synthetic signals (Node 18+)
 ```
 
-To use it on a phone, host the `www/` folder on any HTTPS host (GitHub Pages, Netlify,
-Cloudflare Pages, …), open it in Chrome (Android) or Safari (iOS) and choose
+To use it on a phone, open the website (or host the `www/` folder on any HTTPS host such as
+Netlify or Cloudflare Pages) in Chrome (Android) or Safari (iOS) and choose
 **Add to Home screen** / **Install app**. It then runs full-screen and works offline.
 Browsers only allow microphone access over HTTPS (or on `localhost`).
 

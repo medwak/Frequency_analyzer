@@ -7,6 +7,10 @@
   <meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
   <meta name="description" content="Analyse the frequency, wavelength and pitch of any sound, and split music into vocal and instrumental parts.">
   <title>Frequency Analyzer</title>
+  <meta property="og:title" content="Frequency Analyzer">
+  <meta property="og:description" content="Measure the frequency, wavelength and pitch of any sound, and split music into vocals and instrumental — right in your browser.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="icons/icon-512.png">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -28,6 +32,7 @@
   <main>
     <!-- ============================== LIVE ============================== -->
     <section id="view-live" class="view active" aria-labelledby="tab-live">
+      <div class="col col-main">
       <div class="card hero">
         <div class="hero-label" id="live-status">Tap <b>Start listening</b> and sing, hum or say a vowel.</div>
         <div class="hero-freq"><span id="live-freq">—</span><small>Hz</small></div>
@@ -48,6 +53,8 @@
         <div class="stat"><div class="stat-label">Level</div><div class="stat-value" id="live-level">—</div></div>
       </div>
 
+      </div>
+      <div class="col col-side">
       <div class="card">
         <div class="card-head"><h2>Spectrum</h2><span class="hint" id="live-peak">Peak —</span></div>
         <canvas class="chart" id="live-spectrum" height="180" role="img" aria-label="Live frequency spectrum"></canvas>
@@ -78,7 +85,9 @@
         <canvas class="chart" id="live-vowel-chart" height="200" role="img" aria-label="Vowel chart: F2 against F1"></canvas>
       </div>
 
-      <div class="card">
+      </div>
+      <div class="col col-main-2">
+      <div class="card harmonics-card">
         <div class="card-head"><h2>Harmonics</h2><span class="hint">relative strength</span></div>
         <div class="harmonics" id="live-harmonics"></div>
       </div>
@@ -91,6 +100,7 @@
         <button class="btn" id="live-hold" disabled>Hold</button>
         <button class="btn" id="live-record" disabled title="Record a clip and run the full analysis">● Rec</button>
       </div>
+      </div>
     </section>
 
     <!-- ============================== FILE ============================== -->
@@ -98,7 +108,7 @@
       <label class="dropzone" id="dropzone">
         <input type="file" id="file-input" accept="audio/*,video/mp4,.mp3,.wav,.m4a,.aac,.ogg,.oga,.opus,.flac,.webm" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="16" r="3" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-        <strong>Choose an audio file</strong>
+        <strong>Choose an audio file<span class="desktop-only"> or drop it here</span></strong>
         <span>A song, a voice note or a single vowel — MP3, WAV, M4A, OGG, FLAC</span>
       </label>
 
@@ -122,7 +132,7 @@
           <p class="note" id="res-truncated" hidden>Only the first 8 minutes were analysed.</p>
         </div>
 
-        <div class="card player">
+        <div class="card player" id="player-card">
           <div class="segmented" role="tablist" aria-label="Choose what to play">
             <button role="tab" class="seg active" data-stem="mix"><i class="swatch s1"></i>Full mix</button>
             <button role="tab" class="seg" data-stem="vocal"><i class="swatch s2"></i>Vocals</button>
@@ -138,7 +148,7 @@
           </div>
         </div>
 
-        <div class="card">
+        <div class="card span-2">
           <div class="card-head"><h2>Spectrogram</h2><span class="hint" id="spec-readout">Tap to read a point</span></div>
           <div class="segmented small" id="spec-tabs">
             <button class="seg active" data-spec="mix">Mix</button>
@@ -190,19 +200,23 @@
           <div class="bands" id="res-bands"></div>
         </div>
 
-        <div class="card">
+        <div class="card span-2">
           <div class="card-head"><h2>Average spectrum</h2><span class="hint" id="avg-readout"></span></div>
           <div class="legend"><span><i class="swatch s1"></i>Mix</span><span><i class="swatch s2"></i>Vocals</span><span><i class="swatch s3"></i>Instrumental</span></div>
           <canvas class="chart" id="res-avg" height="200" role="img" aria-label="Average spectrum of mix, vocals and instrumental"></canvas>
         </div>
 
-        <p class="note">
+        <p class="note span-2">
           Vocals are separated on-device by finding sound that is centre-panned, pitched and in the
           voice range. It works well on most studio mixes; centre-panned lead instruments can leak
           into the vocal part, and mono recordings separate less cleanly.
         </p>
       </div>
     </section>
+    <footer class="site-footer">
+      <p>Frequency Analyzer runs entirely in your browser — no audio leaves your device.
+      Works on phones (add it to your home screen) and computers.</p>
+    </footer>
   </main>
 
   <nav class="tabbar" role="tablist">

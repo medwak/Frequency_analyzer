@@ -1,5 +1,5 @@
 // Offline cache for the app shell. Bump VERSION when shipping changes.
-const VERSION = 'fa-v1';
+const VERSION = 'fa-v2';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
   'js/app.js', 'js/dsp.js', 'js/analysis.js', 'js/worker.js', 'js/live.js', 'js/file.js', 'js/charts.js', 'js/wav.js',
