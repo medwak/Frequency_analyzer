@@ -3,6 +3,7 @@ import { LiveAnalyser } from './live.js';
 import { FileAnalyser } from './file.js';
 
 const $ = (id) => document.getElementById(id);
+$('script-warning').remove();
 
 // ------------------------------------------------------------ settings
 
@@ -41,7 +42,7 @@ const live = new LiveAnalyser(settings, {
     showView('file');
     file.analyse(blob, `Recording ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
   },
-  onError: (msg) => { $('live-status').textContent = msg; },
+  onSettingsChange: saveSettings,
 });
 
 function showView(name) {

@@ -19,6 +19,10 @@
   <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
+  <div class="script-warning" id="script-warning">
+    The app's script did not load, so the buttons won't work. Make sure the <code>js</code> folder
+    is next to <code>index.html</code> (unzip the whole download), then reload with Ctrl+Shift+R.
+  </div>
   <header class="topbar">
     <div class="brand">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h3l2-6 3 12 3-15 3 18 2-9h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -35,6 +39,7 @@
       <div class="col col-main">
       <div class="card hero">
         <div class="hero-label" id="live-status">Tap <b>Start listening</b> and sing, hum or say a vowel.</div>
+        <label class="mic-picker" hidden>Microphone <select id="live-device"></select></label>
         <div class="hero-freq"><span id="live-freq">—</span><small>Hz</small></div>
         <div class="hero-note">
           <span class="note-pill" id="live-note">—</span>
@@ -45,6 +50,8 @@
           <div class="tuner-track"><div class="tuner-zone"></div><div class="tuner-needle" id="live-needle"></div></div>
         </div>
       </div>
+
+      <div class="live-alert" id="live-alert" role="alert" hidden></div>
 
       <div class="stats-grid">
         <div class="stat"><div class="stat-label">Wavelength</div><div class="stat-value" id="live-wavelength">—</div></div>
