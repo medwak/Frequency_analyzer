@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "npx --yes http-server www -p 8080 -c-1",
+    "build": "node scripts/build.mjs",
     "test": "node --test test/*.test.js"
   },
   "license": "MIT"

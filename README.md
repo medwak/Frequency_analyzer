@@ -65,12 +65,21 @@ The first time, a repository admin may need to open **Settings → Pages** and s
 
 ## Running it
 
-It's a Progressive Web App: plain HTML/CSS/JavaScript with no build step and no dependencies.
+It's a Progressive Web App: plain HTML/CSS/JavaScript with no dependencies.
+
+**Quickest way:** open `www/index.html` in Chrome, Edge or Firefox by double-clicking it.
+Everything works from disk, including the microphone.
 
 ```bash
-npm start          # serves www/ at http://localhost:8080
-npm test           # DSP unit tests on synthetic signals (Node 18+)
+npm start          # or serve www/ at http://localhost:8080
+npm test           # unit tests (Node 18+)
+npm run build      # regenerate www/js/app.bundle.js after editing www/js/*.js
 ```
+
+The source lives in the ES modules in `www/js/`. Browsers won't load ES modules from a
+`file://` page, so `npm run build` bundles them, with the analysis worker inlined, into a
+single plain script, `www/js/app.bundle.js`, which is what `index.html` loads. `npm test`
+fails if the bundle is out of date.
 
 To use it on a phone, open the website (or host the `www/` folder on any HTTPS host such as
 Netlify or Cloudflare Pages) in Chrome (Android) or Safari (iOS) and choose
@@ -108,6 +117,8 @@ www/
   js/file.js            file decoding, results, stem playback and export
   js/charts.js          canvas charts (spectrum, spectrogram, contour, vowel chart)
   js/wav.js             WAV encoder
+  js/app.bundle.js      generated single-file build of the above (npm run build)
   sw.js, manifest.webmanifest, icons/   installable / offline PWA
+scripts/build.mjs       bundler for app.bundle.js (no dependencies)
 test/                   unit tests and synthetic test signals
 ```
